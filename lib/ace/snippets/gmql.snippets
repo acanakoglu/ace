@@ -1,0 +1,77 @@
+##
+## SELECT
+snippet SELECT
+	SELECT(${1:pm}; region: ${2:pr}; semijoin: ${3:psj(DSext)}) ${4:DSin};
+
+##
+
+## MATERIALIZE
+snippet MATERIALIZE
+	MATERIALIZE ${1:DS} INTO ​${2:fileName};
+##
+
+## PROJECT
+snippet PROJECT
+	PROJECT(region_update: ${1:new_right} AS ${2:right}) ${3:DS};
+##
+
+## EXTEND
+snippet EXTEND
+	EXTEND(${1:RegionCount} AS COUNT()) ${2:EXP};
+##
+
+## GROUP
+snippet GROUP
+	GROUP(${1:Tumor_type}; region_aggregate: ${2:Min AS MIN(score)}) ${3:EXP};
+##
+
+## ORDER
+snippet ORDER
+	ORDER(Region_count ${1:DESC}; meta_top: ${2:2};) ${3:INPUT_DS};
+##
+
+## MERGE
+snippet MERGE
+	MERGE(groupby: ${1:antibody_target}) ${2:EXPERIMENT};
+##
+
+## UNION
+snippet UNION
+	UNION() ${1:BROAD} ${2:NARROW};
+##
+
+## DIFFERENCE
+snippet DIFFERENCE
+	DIFFERENCE(joinby: ${1:antibody_target}) ${2:EXP1} ${3:EXP2};
+##
+
+## MAP
+snippet MAP
+	MAP (${1:minScore} AS ${2:MIN(score)}; joinby: ${3:cell_tissue}) ${4:REF} ${5:EXP};
+##
+
+## JOIN
+snippet JOIN
+	JOIN(${1:genometric_predicate}; output: ${2:CAT}; joinby: ${3:provider}) ${4:DS_ANCHOR} ${5:DS_EXP};
+##
+
+## COVER
+snippet COVER
+	COVER(${1:minAcc}, ${2:maxAcc};​ groupby: ${3:cell}; aggregate: ${4:min_pValue} AS ${5:MIN(pValue)}) ${6:DSin};
+##
+
+## FLAT
+snippet FLAT
+	FLAT(${1:minAcc}, ${2:maxAcc}; groupby: ${3:cell}) ${4:EXP};
+##
+
+## SUMMIT
+snippet SUMMIT
+	SUMMIT(${1:minAcc}, ${2:maxAcc}; groupby: ${3:cell}) ${4:EXP};
+##
+
+## HISTOGRAM 
+kerufherifuh 
+snippet HISTOGRAM
+	HISTOGRAM(${1:minAcc}, ${2:maxAcc}; groupby: ${3:cell}) ${4:EXP};
+##

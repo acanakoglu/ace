@@ -1,0 +1,34 @@
+AAA_RAW = SELECT(cell == '[Cell_Name]' AND antibody_target == 'AAA' AND dataType == 'ChipSeq') HG19_ENCODE_BED;
+AAA_Cover_2 = COVER(2,ANY) AAA_RAW;
+
+BBB_RAW = SELECT(cell == '[Cell_Name]' AND antibody_target == 'BBB' AND dataType == 'ChipSeq') HG19_ENCODE_BED;
+BBB_Cover_2 = COVER(2,ANY) BBB_RAW;
+
+TSS = SELECT(annotation_type == 'TSS' AND provider == "UCSC") HG19_BED_ANNOTATION;
+
+TSS_AAA_2_L = JOIN(DLE(100000),UP; output: LEFT) TSS AAA_Cover_2; 
+TSS_AAA_2_COUNT = MAP() TSS TSS_AAA_2_L;
+TSS_AAA_2_COUNT_0 = SELECT(region: count_TSS_TSS_AAA_2_L>0) TSS_AAA_2_COUNT;
+
+TSS_BBB_2_L = JOIN(DLE(100000),UP;output: LEFT) TSS BBB_Cover_2; 
+TSS_BBB_2_COUNT = MAP() TSS TSS_BBB_2_L;
+TSS_BBB_2_COUNT_0 = SELECT(region: count_TSS_TSS_BBB_2_L>0) TSS_BBB_2_COUNT;
+
+COMMON_TSS = JOIN(DISTANCE<1;output: INT) TSS_AAA_2_COUNT_0 TSS_BBB_2_COUNT_0 ; # Under the hyphothesis (To Be Verified) that there are no partially overlapping TSSes
+# Doing this I skip the names. So I map again one of them of this to extract the names
+
+COMMON_TSS_NAMES = MAP() TSS COMMON_TSS;
+TSS_0 = SELECT(region: count_TSS_COMMON_TSS>0) COMMON_TSS_NAMES; # These are the common TSSes. Old name: COMMON_TSS_NAMES
+
+LONG_TSS_0 = PROJECT(region_modifier: left AS start - 100000) TSS_0; # Extend the TSSes
+TSS_0_AAA_2_CLOSE_0 = MAP(TSSname AS BAG($0)) AAA_Cover_2 LONG_TSS_0; # find the TFBS that are close on left to TSSes
+TSS_0_AAA_2_CLOSE = SELECT(region: count_AAA_Cover_2_LONG_TSS_0 > 0) TSS_0_AAA_2_CLOSE_0; # take out the irrelevant ones
+TSS_0_AAA_2_CLOSEST = JOIN(MD(1);output: LEFT) TSS_0_AAA_2_CLOSE TSS_0; # Find the closest TFBS
+
+TSS_0_BBB_2_CLOSE_0 = MAP(TSSname AS BAG($0)) BBB_Cover_2 LONG_TSS_0; # find the TFBS that are close on left to TSSes
+TSS_0_BBB_2_CLOSE = SELECT(region: count_BBB_Cover_2_LONG_TSS_0 > 0) TSS_0_BBB_2_CLOSE_0; # take out the irrelevant ones
+TSS_0_BBB_2_CLOSEST = JOIN(MD(1);output: LEFT) TSS_0_BBB_2_CLOSE TSS_0; # Find the closest TFBS
+
+MATERIALIZE TSS_0 into AAA_2_BBB_2_tss_0;
+MATERIALIZE TSS_0_AAA_2_CLOSEST  into tss_0_AAA_2_closest;
+MATERIALIZE TSS_0_BBB_2_CLOSEST  into tss_0_BBB_2_closest;
